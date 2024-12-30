@@ -130,10 +130,11 @@ class _UploadScreenState extends State<UploadScreen> {
 
                         if (response.statusCode == 200) {
                           final jsonData = jsonDecode(response.body);
-                          final probabilities = jsonData['probabilities'];
+                          debugPrint(jsonData);
+                          final type = jsonData['result'];
 
                           // TODO: Display the result
-                          debugPrint(probabilities);
+                          debugPrint(type);
                         } else {
                           print('Failed to get result');
                         }
@@ -164,15 +165,7 @@ class _UploadScreenState extends State<UploadScreen> {
                           final jsonData = jsonDecode(response.body);
                           final probabilities = jsonData['probabilities'];
 
-                          final class1 = probabilities['class1'];
-                          final class2 = probabilities['class2'];
-                          final class3 = probabilities['class3'];
-
-                          // TODO: Display the result
-                          print(
-                              'class1: $class1, class2: $class2, class3: $class3');
-                        } else {
-                          print('Failed to get result');
+                          debugPrint(probabilities);
                         }
                       },
                       style: ElevatedButton.styleFrom(

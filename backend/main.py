@@ -29,7 +29,7 @@ inference_result = {
 # Endpoint to get inference result
 @app.get("/inference_result")
 async def get_inference_result():
-    return {"result": "Sample classification", "type": inference_result["type"]}
+    return {"result": "Sample classification", "type": inference_result["result"]}
 
 # Endpoint to get inference probability
 @app.get("/inference_probability")
