@@ -100,10 +100,7 @@ class _UploadScreenState extends State<UploadScreen> {
                       final result = jsonData['result'];
                       final type = jsonData['type'];
 
-                      // TODO: Display the result
-                      print(result);
-                      print(type);
-                    } else if (response.statusCode == 422) {
+                      debugPrint(type);
                       print('422 Error');
                     }
                   },
@@ -133,12 +130,10 @@ class _UploadScreenState extends State<UploadScreen> {
 
                         if (response.statusCode == 200) {
                           final jsonData = jsonDecode(response.body);
-                          final result = jsonData['result'];
-                          final type = jsonData['type'];
+                          final probabilities = jsonData['probabilities'];
 
                           // TODO: Display the result
-                          print(result);
-                          print(type);
+                          debugPrint(probabilities);
                         } else {
                           print('Failed to get result');
                         }

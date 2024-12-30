@@ -20,24 +20,22 @@ app.add_middleware(
 )
 
 # Inference result model
-class InferenceResult(BaseModel):
-    result: str
-    confidence: float
+inference_result = {
+    "result": None,
+    "type": None,
+    "probabilities": None
+}
 
 # Endpoint to get inference result
 @app.get("/inference_result")
 async def get_inference_result():
-    return {"result": "Sample classification", "type": 'something_type'}
+    return {"result": "Sample classification", "type": inference_result["type"]}
 
 # Endpoint to get inference probability
 @app.get("/inference_probability")
 async def get_inference_probability():
     return {
-        "probabilities": {
-            "class1": 0.75,
-            "class2": 0.20,
-            "class3": 0.05
-        }
+       'probabilities': inference_result["probabilities"]
     }
 
 # Endpoint to upload image
@@ -45,14 +43,16 @@ async def get_inference_probability():
 async def upload_image(file: UploadFile = File(...)):
     # Create uploads directory if it doesn't exist
     os.makedirs("uploads", exist_ok=True)
+    filename = file.filename
+    file_path = os.path.join("uploads", filename)
+    contents = await file.read()
+    with open(file_path, "wb") as f:
+        f.write(contents)
 
-    # Save the uploaded file
-    file_path = os.path.join("uploads", file.filename)
-    with open(file_path, "wb") as buffer:
-        buffer.write(await file.read())
 
     # Load the ResNet50 model
     model = ResNet50(weights='imagenet')
+    
 
     # Load the uploaded image
     img = image.load_img(file_path, target_size=(224, 224))
@@ -66,14 +66,22 @@ async def upload_image(file: UploadFile = File(...)):
     # Decode the predictions
     predictions_decoded = decode_predictions(predictions, top=3)[0]
 
+    # Get the class with the highest confidence
+    top_prediction = max(predictions_decoded, key=lambda x: x[2])
+
+    inference_result["result"] = top_prediction[1]
+    inference_result["type"] = top_prediction[0]
+    inference_result["probabilities"] = float(top_prediction[2])   
+
     return {
         "filename": file.filename,
         "filepath": file_path,
         "status": "uploaded successfully",
-        "predictions": [
-            {"class": prediction[1], "confidence": float(prediction[2])}
-            for prediction in predictions_decoded
-        ]
+        "inference_result": {
+            "result": top_prediction[1],
+            "type": top_prediction[0],
+            "probabilities": float(top_prediction[2])
+        }
     }
 
 if __name__ == "__main__":
